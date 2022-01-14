@@ -126,6 +126,7 @@ alias fgrep='fgrep --color=auto'
 alias mkdir='mkdir -pv'
 alias mount='mount |column -t'
 alias vi='nvim'
+alias nano='sudo nano'
 alias su='sudo -i'
 alias df='df -h -P --total --exclude-type=devtmpfs 2>/dev/null'
 alias tmux='tmux -2'
@@ -143,6 +144,9 @@ alias diff='colordiff'
 alias top='htop'
 alias update='paru -Syua'
 alias upgrade='topgrade'
+alias ncmpcppp='tmux new-session -s $$ "tmux source-file ~/.config/ncmpcpp/tsession"'
+alias redshifton='systemctl --user enable redshift.service --now'
+alias redshiftoff='systemctl --user disable redshift.service --now'
 
 neofetch --ascii_distro archlinux
 

@@ -1,5 +1,7 @@
 {-# OPTIONS_GHC -Wno-name-shadowing #-}
 import XMonad
+import XMonad.Config.Desktop
+import XMonad.Config.Xfce
 import System.Exit
 import Prelude hiding (log)
 import qualified XMonad.StackSet as W
@@ -121,7 +123,6 @@ myAditionalKeys =
   , ("M-s", spawn "Plexamp.AppImage")
   , ("M-S-s", spawn "Plexamp.AppImage")
   , ("<Print>", spawn "flameshot gui")
-  , ("M-S-e", spawn "rofi -modi \"clipboard:greenclip print\" -show clipboard -run-command '{cmd}'")
   , ("M-z", spawn "xkb-switch -n")
   , ("M-q", kill)
 
@@ -133,15 +134,15 @@ myAditionalKeys =
   , ("M-b", namedScratchpadAction myScratchPads "brightness")
   , ("M-S-c", namedScratchpadAction myScratchPads "caprine")
 
-  -- spotify controls
-  , ("M-<F9>", spawn "dbus-send --print-reply --dest=org.mpris.MediaPlayer2.spotify /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.PlayPause")
-  , ("M-<F11>", spawn "dbus-send --print-reply --dest=org.mpris.MediaPlayer2.spotify /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.Previous")
-  , ("M-<F12>", spawn "dbus-send --print-reply --dest=org.mpris.MediaPlayer2.spotify /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.Next")
-
+  -- media controls
+  , ("M-S-<F7>", spawn "playerctl --player=mpd play-pause")
+  , ("M-S-<F6>", spawn "playerctl --player=mpd previous")
+  , ("M-S-<F8>", spawn "playerctl --player=mpd next")
+  , ("M-S-<F9>", spawn "playerctl --player=mpd stop")
   -- volume controls
   , ("M-<Print>", spawn "amixer set Master toggle")
-  , ("M-<Scroll_lock>", spawn "amixer set Master 5%-")
-  , ("M-<Pause>", spawn "amixer set Master 5%+")
+  , ("M-<F10>", spawn "amixer set Master 5%-")
+  , ("M-<F11>", spawn "amixer set Master 5%+")
 
   -- window controls
   , ("M-j", windows W.focusDown)
@@ -159,7 +160,8 @@ myAditionalKeys =
   , ("M-comma", sendMessage $ IncMasterN 1)
   , ("M-period", sendMessage $ IncMasterN (-1))
   , ("M-<Space>", withFocused $ windows . W.sink)
-  , ("M-e", spawn "rofi-window-finder.sh")
+  , ("M-e", spawn "systemctl --user enable redshift.service --now")
+  , ("M-S-e", spawn "systemctl --user disable redshift.service --now")
 
   -- layout controls
   , ("M-a", sendMessage $ Toggle NBFULL)
@@ -269,12 +271,17 @@ myHandleEventHook = dynamicPropertyChange "WM_NAME" (title =? "Spotify" --> doSh
 
 myStartupHook :: X ()
 myStartupHook = do
-    spawn "~/.config/xmonad/xmobar/xmobar_transparent_spawner.sh &"
+    --  spawn "~/.config/xmonad/xmobar/xmobar_transparent_spawner.sh &"
     spawnOnce "picom &"
     spawn "~/.config/xmonad/scripts/xrandr.sh &"
+    spawn "killall nm-applet; nm-applet &"
+    spawn "killall volumeicon; volumeicon &"
+    spawn "mpd &"
+    spawn "killall mpDris2; mpDris2 &"
+    spawn "killall mpdscribble; mpdscribble &"
     spawn "~/.config/xmonad/scripts/oc.sh &"
     spawn "~/.fehbg &"
-    spawn "killall trayer; trayer --monitor 2 --edge top --align right --widthtype request --padding 15 --iconspacing 5 --SetDockType true --SetPartialStrut true --expand true --transparent true --alpha 0 --tint 0x2B2E37  --height 29 --distance 5 &"
+    spawn "killall trayer; trayer --monitor 1 --edge top --align right --widthtype request --padding 15 --iconspacing 5 --SetDockType true --SetPartialStrut true --expand true --transparent true --alpha 0 --tint 0x2B2E37  --height 15 --distance 2 &"
     modify $ \xstate -> xstate { windowset = onlyOnScreen 1 "1_1" (windowset xstate) }
 
 
@@ -366,9 +373,9 @@ myXmobarPP s  = filterOutWsPP [scratchpadWorkspaceTag] . marshallPP s $ def
                 ]
   }
   where
-    wsIconFull   = "  <fn=2>\xf111</fn>   "
-    wsIconHidden = "  <fn=2>\xf111</fn>   "
-    wsIconEmpty  = "  <fn=2>\xf10c</fn>   "
+    wsIconFull   = "  <fn=1>\xf111</fn>   "
+    wsIconHidden = "  <fn=1>\xf111</fn>   "
+    wsIconEmpty  = "  <fn=1>\xf1ce</fn>   "
     titleColorIsActive n l = do
       c <- withWindowSet $ return . W.screen . W.current
       if n == c then xmobarColorL cyan "" l else xmobarColorL grey3 "" l
